@@ -2,7 +2,7 @@ def verify_pass_by_count(min, max, charcode, passcode):
     count = 0;
     for x in range(len(passcode)):
         if passcode[x] == charcode:
-            count += 1;
+            count += 1
     return (count >= min and count <= max)
 
 def xor (a, b):
