@@ -1,69 +1,108 @@
 import re
 
+#Validates a given passport designated by start and end line indices.
 def validate_passport(start, end, lines):
-    byr = False
-    iyr = False
-    eyr = False
-    hgt = False
-    hcl = False
-    ecl = False
-    pid = False
+    #one flag for each required field
+    #loop over all lines in the passport
+    #check each line for required fields, if they have it set True. Cannot set False after setting True within a passport (probably not scalable but whatever)
+    byr_flag = False
+    iyr_flag = False
+    eyr_flag = False
+    hgt_flag = False
+    hcl_flag = False
+    ecl_flag = False
+    pid_flag = False
+
+    valid = False
+
+    #start end are line indices of passport. Example: passport starts on line 13 and ends on line 16. Scan everything between that in lines
     for i in range(start, end):
 
-        byrval = re.search("byr:\d{4}", lines[i])
-        year = int(byrval.group().split(':')[1]) if byrval else -1
-        byr = True if byrval and (1920 <= year and year <= 2002) else byr
+        print(lines[i], end='')
 
-        iyrval = re.search("iyr:\d{4}", lines[i])
-        year = int(iyrval.group().split(':')[1]) if iyrval else -1
-        iyr = True if iyrval and (2010 <= year and year <= 2020) else iyr
+        #check for birth year
+        byr_match = re.search("byr:\d{4}", lines[i])
+        byr_year = int(byr_match.group().split(':')[1]) if byr_match else -1
+        byr_flag = True if byr_match and (1920 <= byr_year and byr_year <= 2002) else byr_flag
+        
 
-        eyrval = re.search("eyr:\d{4}", lines[i])
-        year = int(eyrval.group().split(':')[1]) if eyrval else -1
-        eyr = True if eyrval and (2020 <= year and year <= 2030) else eyr
+        #check for issue year
+        iyr_match = re.search("iyr:\d{4}", lines[i])
+        iyr_year = int(iyr_match.group().split(':')[1]) if iyr_match else -1
+        iyr_flag = True if iyr_match and (2010 <= iyr_year and iyr_year <= 2020) else iyr_flag
+        
 
-        hgtval = re.search("hgt:\d+((cm)|(in))", lines[i])
-        if hgtval:
-            heightGroup = hgtval.group().split(':')[1]
+        #check for expiry year
+        eyr_match = re.search("eyr:\d{4}", lines[i])
+        eyr_year = int(eyr_match.group().split(':')[1]) if eyr_match else -1
+        eyr_flag = True if eyr_match and (2020 <= eyr_year and eyr_year <= 2030) else eyr_flag
+        
+
+        #check for height
+        hgt_match = re.search("hgt:\d+((cm)|(in))", lines[i])
+        if hgt_match:
+            heightGroup = hgt_match.group().split(':')[1]
             height = int(heightGroup[slice(len(heightGroup)-2)])
-            cm = re.search("cm", heightGroup)
+            cm = re.search("cm", heightGroup) #matches if cm, doesnt match in inches. I know its hacky but...
             heightUnitCheck = (cm and 150 <= height <= 193) or (not cm and 59 <= height <= 76)
         else:
             heightUnitCheck = False
-        hgt = True if hgtval and heightUnitCheck else hgt
+        hgt_flag = True if hgt_match and heightUnitCheck else hgt_flag
+        
 
-        hclval = re.search("hcl:#[0-9a-f]{6}", lines[i])
-        hcl = True if hclval else hcl
+        #check for hair color
+        hcl_match = re.search("hcl:#[0-9a-f]{6}", lines[i])
+        hcl_flag = True if hcl_match else hcl_flag
+        
 
-        eclval = re.search("ecl:(amb)|(blu)|(brn)|(gry)|(grn)|(hzl)|(oth)", lines[i])
-        ecl = True if eclval else ecl
+        #check for eye color
+        ecl_match = re.search("ecl:(amb)|(blu)|(brn)|(gry)|(grn)|(hzl)|(oth)", lines[i])
+        ecl_flag = True if ecl_match else ecl_flag
+        
 
-        pidval = re.search("pid:\d{9}", lines[i])
-        pid = True if pidval else pid
+        #check for pass id
+        pid_match = re.search("pid:\d{9}", lines[i])
+        pid_flag = True if pid_match else pid_flag
+        
 
-    valid = byr and iyr and eyr and hgt and hcl and ecl and pid
-    print(lines[start:end]) if valid else print()
-    print("byr:", byr)
-    print("iyr:", iyr)
-    print("eyr:", eyr)
-    print("hgt:", hgt)
-    print("hcl:", hcl)
-    print("ecl:", ecl)
-    print("pid:", pid)
+
+    #beer ear air higget hydrochloric eckle pid
+    valid = byr_flag and iyr_flag and eyr_flag and hgt_flag and hcl_flag and ecl_flag and pid_flag
+
+    #printing for testing
+    print()
+    print("byr:", byr_flag)
+    print("iyr:", iyr_flag)
+    print("eyr:", eyr_flag)
+    print("hgt:", hgt_flag)
+    print("hcl:", hcl_flag)
+    print("ecl:", ecl_flag)
+    print("pid:", pid_flag)
+    print()
+    print(valid)
+    print()
+
     return valid
 
-filePath = 'example-data.txt'
+#the file
+filePath = 'input-data.txt'
 
+#loop over all lines, each time an empty line is found, figure out the indeces corresponding to that passport and send to validate
 with open(filePath, 'r') as file:
+
     validCount = 0
+
     lines = file.readlines()
+
+    #the start of the current passport
     start = 0
     for i in range(len(lines)):
         if lines[i] == "\n":
             valid = validate_passport(start, i, lines)
-            print(valid)
+            #print(valid)
             validCount += 1 if valid else 0
-            start = i+1
+            start = i
+            #start of passport is on the next line since current line is blank
     print (validCount)
 
 
