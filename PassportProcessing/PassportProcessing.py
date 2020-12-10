@@ -21,28 +21,28 @@ def validate_passport(start, end, lines):
         print(lines[i], end='')
 
         #check for birth year
-        byr_match = re.search("byr:\d{4}", lines[i])
+        byr_match = re.search("byr:\d{4}\s", lines[i])
         byr_year = int(byr_match.group().split(':')[1]) if byr_match else -1
         byr_flag = True if byr_match and (1920 <= byr_year and byr_year <= 2002) else byr_flag
         
 
         #check for issue year
-        iyr_match = re.search("iyr:\d{4}", lines[i])
+        iyr_match = re.search("iyr:\d{4}\s", lines[i])
         iyr_year = int(iyr_match.group().split(':')[1]) if iyr_match else -1
         iyr_flag = True if iyr_match and (2010 <= iyr_year and iyr_year <= 2020) else iyr_flag
         
 
         #check for expiry year
-        eyr_match = re.search("eyr:\d{4}", lines[i])
+        eyr_match = re.search("eyr:\d{4}\s", lines[i])
         eyr_year = int(eyr_match.group().split(':')[1]) if eyr_match else -1
         eyr_flag = True if eyr_match and (2020 <= eyr_year and eyr_year <= 2030) else eyr_flag
         
 
         #check for height
-        hgt_match = re.search("hgt:\d+((cm)|(in))", lines[i])
+        hgt_match = re.search("hgt:\d+((cm)|(in))\s", lines[i])
         if hgt_match:
             heightGroup = hgt_match.group().split(':')[1]
-            height = int(heightGroup[slice(len(heightGroup)-2)])
+            height = int(heightGroup[slice(len(heightGroup)-3)])
             cm = re.search("cm", heightGroup) #matches if cm, doesnt match in inches. I know its hacky but...
             heightUnitCheck = (cm and 150 <= height <= 193) or (not cm and 59 <= height <= 76)
         else:
@@ -51,17 +51,17 @@ def validate_passport(start, end, lines):
         
 
         #check for hair color
-        hcl_match = re.search("hcl:#[0-9a-f]{6}", lines[i])
+        hcl_match = re.search("hcl:#[0-9a-f]{6}\s", lines[i])
         hcl_flag = True if hcl_match else hcl_flag
         
 
         #check for eye color
-        ecl_match = re.search("ecl:(amb)|(blu)|(brn)|(gry)|(grn)|(hzl)|(oth)", lines[i])
+        ecl_match = re.search("ecl:(amb)|(blu)|(brn)|(gry)|(grn)|(hzl)|(oth)\s", lines[i])
         ecl_flag = True if ecl_match else ecl_flag
         
 
         #check for pass id
-        pid_match = re.search("pid:\d{9}", lines[i])
+        pid_match = re.search("pid:\d{9}\s", lines[i])
         pid_flag = True if pid_match else pid_flag
         
 
